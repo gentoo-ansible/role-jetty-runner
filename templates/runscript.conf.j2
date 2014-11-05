@@ -1,0 +1,61 @@
+{% macro space_separated(value) -%}
+{{ value if value is string else value | join(' ') }}
+{%- endmacro %}
+# {{ ansible_managed }}
+
+# User to run the application.
+user="{{ user }}"
+
+# Path of the WAR file, the web app directory, or the context xml file to run.
+webapp_path="{{ war_dest_path }}"
+
+# The port to listen on for HTTP connections (or 0 for a randomly allocated port).
+server_port="{{ server_port }}"
+
+# The name or IP of the interface to listen on (default is all interfaces).
+server_bind_address="{{ server_bind_address }}"
+
+# Path of the log file to catch stdout/stderr of the server process.
+# Use empty value to disable stdout/sderr logging.
+{{ '' if server_out_log_enabled | bool else '#' }}server_out_log="{{ logs_dir }}/server.log"
+
+# Path of the access log file.
+# Use empty value to disable access log.
+{{ '' if server_access_log_enabled | bool else '#' }}server_access_log="{{ logs_dir }}/access.log"
+
+# Additional JARs to be added to the classloader.
+# It may contain space or colon separated Gentoo package names, paths of JAR
+# files or directories.
+server_extra_jars="{{ space_separated(server_extra_jars) }}"
+
+# Java system properties to pass to the JVM.
+# Define space separated tuples of <name>=<value>; it will be transformed into
+# -D<name>=<value> arguments for java.
+{% if env_properties %}
+java_properties="
+{% for k, v in env_properties.items() %}
+	{{ k }}={{ v }}
+{% endfor %}"
+{% else %}
+#java_properties=""
+{% endif %}
+
+# Initial and maximum size of the heap (in megabytes).
+# Note: This sets parameters -Xms and -Xmx.
+java_heap_size="{{ java_heap_size }}"
+
+# Initial and maximum size of the Permanent Generation space (in megabytes).
+# Note: This sets parameters -XX:PermSize and -XX:MaxPermSize.
+java_perm_size="{{ java_perm_size }}"
+
+# Ratio of old/new generation sizes. The default value is 2 (i.e. max size of
+# old will be twice as the max size of young).
+# Note: This sets parameter -XX:NewRatio.
+java_new_ratio="{{ java_new_ratio }}"
+
+# Additional options to pass to the JVM.
+java_opts="{{ space_separated(java_opts) }}"
+
+{% for k, v in rc_depend.items() %}
+rc_{{ k }}="{{ space_separated(v) }}"
+{% endfor %}

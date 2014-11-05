@@ -1,0 +1,76 @@
+---
+# Name of the application.
+name:
+
+#
+# Deployment
+#
+
+# URL of the WAR file to download and deploy (optional).
+war_fetch_url:
+
+# Path of the directory to deploy the WAR into (i.e. home of the application).
+deploy_dir: "/opt/{{ name }}"
+
+# Path of the directory to store logs.
+logs_dir: "/var/log/{{ name }}"
+
+#
+# Run script
+#
+
+# The user to run the application. It will be created if does not exist yet.
+user: "{{ name }}"
+
+# The group to run the application. It will be created if does not exist yet.
+group: "{{ user }}"
+
+# Full path of the (deployed) WAR file to run.
+war_dest_path: "{{ deploy_dir }}/{{ name }}.war"
+
+# The service dependencies; hash with any of the keys: need, use, after,
+# before, provide. The value should be a single service name, or list of services.
+rc_depend: {}
+
+#
+# Jetty server parameters
+#
+
+# The port number to listen on for HTTP connections (or 0 for a randomly
+# allocated port).
+server_port: 8080
+
+# The name or IP of the interface to listen on (default is all interfaces).
+server_bind_address: ''
+
+# Whether enable logging of stdout/stderr to file {{logs_dir}}/server.log.
+server_out_log_enabled: true
+
+# Whether enable logging of requests to file {{logs_dir}}/access.log.
+server_access_log_enabled: false
+
+# List of additional JARs to be added to the classloader.
+# It may contain Gentoo package names, paths of JAR files or directories.
+server_extra_jars: []
+
+#
+# Java VM parameters
+#
+
+# Hash of Java system properties to pass to the JVM.
+env_properties: {}
+
+# Size of the Java heap (in megabytes).
+java_heap_size: 128
+
+# Size of the Permanent Generation space (in megabytes).
+java_perm_size: 64
+
+# Ratio of old/young generation sizes. The default value is 2 (i.e. max size of
+# old will be twice as the max size of young).
+java_new_ratio: ''
+
+# Additional options to pass to the JVM.
+java_opts:
+  - '-XX:+UseG1GC'
+  - '-XX:MaxGCPauseMillis=80'

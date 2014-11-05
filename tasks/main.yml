@@ -1,0 +1,60 @@
+---
+- name: add overlay cvut
+  layman: >
+    name=cvut
+    list_url=http://raw.github.com/cvut/gentoo-overlay/master/overlay.xml
+  tags: packages
+
+- name: install jetty-runner
+  portage: package=www-servers/jetty-runner
+  tags: packages
+
+- name: create group
+  group: >
+    name={{ group }}
+    system=yes
+  tags: accounts
+
+- name: create user
+  user: >
+    name={{ user }}
+    group={{ group }}
+    home={{ deploy_dir }}
+    createhome=no
+    shell=/sbin/nologin
+    system=yes
+  tags: accounts
+
+- name: create directories
+  file: >
+    path={{ item }}
+    owner={{ user }} group={{ group }} mode=0755
+    state=directory
+  with_items:
+    - "{{ deploy_dir }}"
+    - "{{ logs_dir }}"
+  tags: install
+
+- name: download and deploy WAR file
+  get_url: >
+    url={{ war_fetch_url }}
+    dest={{ war_dest_path }}
+  notify: restart {{ name }}
+  when: war_fetch_url
+  tags: install
+
+- name: symlink runscript
+  file: >
+    state=link
+    src=jetty-runner
+    dest=/etc/init.d/{{ name }}
+    force=yes
+  tags: install
+
+- name: configure runscript
+  template: >
+    src=runscript.conf.j2
+    dest=/etc/conf.d/{{ name }}
+    owner=root group=root mode=0644
+  notify: restart {{ name }}
+  tags: config

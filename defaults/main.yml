@@ -2,6 +2,9 @@
 # Name of the application.
 name:
 
+# The relative URL root (i.e. context path) of the application.
+context_root: ''
+
 #
 # Deployment
 #
